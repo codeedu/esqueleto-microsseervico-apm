@@ -1,0 +1,65 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: codeprogress-conf
+  labels:
+    name: codeprogress-conf
+data:
+  env: |
+    DEBUG=on
+    SECRET_KEY="2=3n$f!wd%a+^^9ulho24(lsy!5i%js%1)9e*sepa0!g9lur+n"
+    
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: codeprogress
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: codeprogress
+  template:
+    metadata:
+      labels:
+        app: codeprogress
+    spec:
+      containers:
+        - name: codeprogress
+          image: wesleywillians/codeprogress:latest
+          ports:
+            - containerPort: 8000
+          envFrom:
+            - configMapRef:
+                name: codeprogress-conf
+          volumeMounts:
+          - name: codeprogress-conf
+            subPath: .env
+            mountPath: /code/.env
+
+      volumes:
+      - name: codeprogress-conf
+        configMap:
+          name: codeprogress-conf
+          items:
+            - key: env
+              path: .env
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: codeprogress-service
+  labels:
+    app: codeprogress
+spec:
+  type: ClusterIP
+  ports:
+    - protocol: TCP
+      name: http-svc
+      port: 8000
+  selector:
+    app: codeprogress
+
+---    

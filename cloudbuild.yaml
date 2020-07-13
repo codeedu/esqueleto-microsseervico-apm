@@ -1,0 +1,13 @@
+steps:
+
+  # Install 
+  - name: 'docker'
+    args: ['build', '-t', 'django', '.']
+
+  # Migrations
+  - name: 'docker'
+    args: ['run', 'django', 'python3','manage.py','migrate']
+
+  # Test
+  - name: 'docker'
+    args: ['run', 'django', 'python3','manage.py','test']
